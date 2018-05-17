@@ -79,7 +79,7 @@ HRESULT MediaSampleProvider::GetNextSample()
 	HRESULT hr = S_OK;
 
 	//MyMediaStreamSample^ sample;
-	FileStream^ fs = gcnew FileStream("c:\\users\\daviddi\\downloads\\videos\\BigBuckBunny_2000yuv420p-7.yuv", FileMode::Create);
+	FileStream^ fs = gcnew FileStream(/* Hardcoded path to output .yuv file */, FileMode::Create);
 	BinaryWriter^ dataWriter = gcnew BinaryWriter(fs);
 
 	LONGLONG pts = 0;

@@ -303,7 +303,7 @@ HRESULT FFmpegInteropMSS::CreateMediaStreamSource(IStream *stream, bool forceAud
 		// access within the app installation directory and appdata folder. Custom IO allows access to file selected using FilePicker dialog.
 		pin_ptr<AVFormatContext*> avFormatCtxPtr = &avFormatCtx;
 		pin_ptr<AVDictionary*> avDictPtr = &avDict;
-		if (avformat_open_input(avFormatCtxPtr, "c:\\users\\daviddi\\downloads\\videos\\BigBuckBunny_2000h264.mp4", NULL, avDictPtr) < 0)
+        if (avformat_open_input(avFormatCtxPtr, /* Local Path to Input File */, NULL, avDictPtr) < 0)
 		{
 			hr = E_FAIL; // Error opening file
 		}
