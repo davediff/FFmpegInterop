@@ -105,6 +105,20 @@ FFmpegInteropMSS^ FFmpegInteropMSS::CreateFFmpegInteropMSSFromStream(IRandomAcce
 
 	return interopMSS;
 }
+/*
+FFmpegInteropMSS^ FFmpegInteropMSS::CreateFFmpegInteropMSSFromStream(IStream* stream, bool forceAudioDecode, bool forceVideoDecode, PropertySet^ ffmpegOptions, MediaStreamSource^ mss)
+{
+	auto interopMSS = ref new FFmpegInteropMSS();
+	if (FAILED(interopMSS->CreateMediaStreamSource(stream, forceAudioDecode, forceVideoDecode, ffmpegOptions, mss)))
+	{
+		// We failed to initialize, clear the variable to return failure
+		interopMSS = nullptr;
+	}
+
+	return interopMSS;
+}
+*/
+
 
 FFmpegInteropMSS^ FFmpegInteropMSS::CreateFFmpegInteropMSSFromStream(IRandomAccessStream^ stream, bool forceAudioDecode, bool forceVideoDecode, PropertySet^ ffmpegOptions)
 {
@@ -270,6 +284,89 @@ HRESULT FFmpegInteropMSS::CreateMediaStreamSource(IRandomAccessStream^ stream, b
 
 	return hr;
 }
+
+HRESULT FFmpegInteropMSS::CreateMediaStreamSource(IStream* stream, bool forceAudioDecode, bool forceVideoDecode, PropertySet^ ffmpegOptions, MediaStreamSource^ mss)
+{
+	HRESULT hr = S_OK;
+	if (!stream)
+	{
+		hr = E_INVALIDARG;
+	}
+
+	//if (SUCCEEDED(hr))
+	//{
+	//	// Convert asynchronous IRandomAccessStream to synchronous IStream. This API requires shcore.h and shcore.lib
+	//	hr = CreateStreamOverRandomAccessStream(reinterpret_cast<IUnknown*>(stream), IID_PPV_ARGS(&fileStreamData));
+	//}
+
+	fileStreamData = stream;
+
+	if (SUCCEEDED(hr))
+	{
+		// Setup FFmpeg custom IO to access file as stream. This is necessary when accessing any file outside of app installation directory and appdata folder.
+		// Credit to Philipp Sch http://www.codeproject.com/Tips/489450/Creating-Custom-FFmpeg-IO-Context
+		fileStreamBuffer = (unsigned char*)av_malloc(FILESTREAMBUFFERSZ);
+		if (fileStreamBuffer == nullptr)
+		{
+			hr = E_OUTOFMEMORY;
+		}
+	}
+
+	if (SUCCEEDED(hr))
+	{
+		avIOCtx = avio_alloc_context(fileStreamBuffer, FILESTREAMBUFFERSZ, 0, fileStreamData, FileStreamRead, 0, FileStreamSeek);
+		if (avIOCtx == nullptr)
+		{
+			hr = E_OUTOFMEMORY;
+		}
+	}
+
+	if (SUCCEEDED(hr))
+	{
+		avFormatCtx = avformat_alloc_context();
+		if (avFormatCtx == nullptr)
+		{
+			hr = E_OUTOFMEMORY;
+		}
+	}
+
+	if (SUCCEEDED(hr))
+	{
+		// Populate AVDictionary avDict based on PropertySet ffmpegOptions. List of options can be found in https://www.ffmpeg.org/ffmpeg-protocols.html
+		hr = ParseOptions(ffmpegOptions);
+	}
+
+	if (SUCCEEDED(hr))
+	{
+		avFormatCtx->pb = avIOCtx;
+		avFormatCtx->flags |= AVFMT_FLAG_CUSTOM_IO;
+
+		// Open media file using custom IO setup above instead of using file name. Opening a file using file name will invoke fopen C API call that only have
+		// access within the app installation directory and appdata folder. Custom IO allows access to file selected using FilePicker dialog.
+		if (avformat_open_input(&avFormatCtx, "", NULL, &avDict) < 0)
+		{
+			hr = E_FAIL; // Error opening file
+		}
+
+		// avDict is not NULL only when there is an issue with the given ffmpegOptions such as invalid key, value type etc. Iterate through it to see which one is causing the issue.
+		if (avDict != nullptr)
+		{
+			DebugMessage(L"Invalid FFmpeg option(s)");
+			av_dict_free(&avDict);
+			avDict = nullptr;
+		}
+	}
+
+	if (SUCCEEDED(hr))
+	{
+		this->mss = mss;
+		hr = InitFFmpegContext(forceAudioDecode, forceVideoDecode);
+	}
+
+	return hr;
+
+}
+
 
 HRESULT FFmpegInteropMSS::InitFFmpegContext(bool forceAudioDecode, bool forceVideoDecode)
 {
@@ -677,6 +774,7 @@ HRESULT FFmpegInteropMSS::ParseOptions(PropertySet^ ffmpegOptions)
 void FFmpegInteropMSS::OnStarting(MediaStreamSource ^sender, MediaStreamSourceStartingEventArgs ^args)
 {
 	MediaStreamSourceStartingRequest^ request = args->Request;
+	DebugMessage(L"OnStarting\n");
 
 	// Perform seek operation when MediaStreamSource received seek event from MediaElement
 	if (request->StartPosition && request->StartPosition->Value.Duration <= mediaDuration.Duration)
@@ -719,6 +817,7 @@ void FFmpegInteropMSS::OnStarting(MediaStreamSource ^sender, MediaStreamSourceSt
 
 void FFmpegInteropMSS::OnSampleRequested(Windows::Media::Core::MediaStreamSource ^sender, MediaStreamSourceSampleRequestedEventArgs ^args)
 {
+	DebugMessage(L"OnSampleRequested\n");
 	mutexGuard.lock();
 	if (mss != nullptr)
 	{

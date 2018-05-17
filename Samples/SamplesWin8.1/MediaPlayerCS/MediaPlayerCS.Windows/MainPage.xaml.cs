@@ -29,6 +29,10 @@ using Windows.UI.Xaml.Controls;
 
 namespace MediaPlayerCS
 {
+    using System.IO;
+    using System.Runtime.InteropServices.ComTypes;
+    using OneDrive.Media.Streams;
+
     public sealed partial class MainPage : Page
     {
         private FFmpegInteropMSS FFmpegMSS;
@@ -60,10 +64,18 @@ namespace MediaPlayerCS
                 // Open StorageFile as IRandomAccessStream to be passed to FFmpegInteropMSS
                 IRandomAccessStream readStream = await file.OpenAsync(FileAccessMode.Read);
 
+                Stream netStream = readStream.AsStream();
+
+                IStream iStream = netStream.ToComStream();
+
+
                 try
                 {
 					// Instantiate FFmpeg object and pass the stream from opened file
-                    FFmpegMSS = FFmpegInteropMSS.CreateFFmpegInteropMSSFromStream(readStream, forceDecodeAudio, forceDecodeVideo);
+                    //FFmpegMSS = FFmpegInteropMSS.CreateFFmpegInteropMSSFromStream(readStream, forceDecodeAudio, forceDecodeVideo);
+
+                    FFmpegMSS = FFmpegInteropMSS.CreateFFmpegInteropMSSFromStream(iStream, forceDecodeAudio, forceDecodeVideo);
+
                     MediaStreamSource mss = FFmpegMSS.GetMediaStreamSource();
 
                     if (mss != null)

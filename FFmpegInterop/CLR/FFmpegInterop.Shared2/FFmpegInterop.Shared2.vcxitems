@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <ItemsProjectGuid>{867383F4-6BEA-4998-B622-5D183301993A}</ItemsProjectGuid>
+    <ItemsRootNamespace>FFmpeg</ItemsRootNamespace>
+    <ItemsProjectName>FFmpegInterop.Shared2</ItemsProjectName>
+    <CodeSharingProject>27F3F5F7-76F4-4EC4-9BA0-139FB851B20F</CodeSharingProject>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Source\FFmpegInteropLogging.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Source\FFmpegInteropMSS.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Source\FFmpegReader.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Source\H264AVCSampleProvider.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Source\H264SampleProvider.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Source\ILogProvider.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Source\MediaSampleProvider.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Source\UncompressedAudioSampleProvider.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Source\UncompressedSampleProvider.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Source\UncompressedVideoSampleProvider.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)pch.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Source\FFmpegInteropLogging.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Source\FFmpegInteropMSS.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Source\FFmpegReader.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Source\H264AVCSampleProvider.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Source\H264SampleProvider.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Source\MediaSampleProvider.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Source\UncompressedAudioSampleProvider.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Source\UncompressedSampleProvider.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Source\UncompressedVideoSampleProvider.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)pch.cpp">
+      <PrecompiledHeader>Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectCapability Include="SourceItemsFromImports" />
+  </ItemGroup>
+</Project>

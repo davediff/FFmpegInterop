@@ -119,6 +119,10 @@
       <Project>{97248e49-6262-4c37-b118-224ff3b98fd0}</Project>
       <Name>FFmpegInterop.Windows</Name>
     </ProjectReference>
+    <Reference Include="OneDrive.Media.Streams, Version=1.0.117.0, Culture=neutral, PublicKeyToken=f4148d698ec140a6, processorArchitecture=AMD64">
+      <HintPath>d:\git\MediaTransformAndAnalysis\packages\OneDrive.MediaProcessingComponents.1.0.117\lib\OneDrive.Media.Streams.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+    </Reference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '12.0' ">
     <VisualStudioVersion>12.0</VisualStudioVersion>
