@@ -59,20 +59,22 @@ namespace FFmpegInterop
 		//MediaThumbnailData^ ExtractThumbnail();
 
 		void Starting(System::TimeSpan startPosition);
-		MyMediaStreamSample^ SampleRequested(bool audioStreamRequested);
+		void SampleRequested(bool audioStreamRequested);
 
 		// Contructor
 		//MediaStreamSource^ GetMediaStreamSource();
 		virtual ~FFmpegInteropMSS();
 
 		// Properties
-		//property AudioStreamDescriptor^ AudioDescriptor
-		//{
-		//	AudioStreamDescriptor^ get()
-		//	{
-		//		return audioStreamDescriptor;
-		//	};
-		//};
+		/*
+		property AudioStreamDescriptor^ AudioDescriptor
+		{
+			AudioStreamDescriptor^ get()
+			{
+				return audioStreamDescriptor;
+			};
+		};
+		*/
 		//property VideoStreamDescriptor^ VideoDescriptor
 		//{
 		//	VideoStreamDescriptor^ get()
@@ -115,8 +117,8 @@ namespace FFmpegInterop
 		HRESULT CreateMediaStreamSource(String^ uri, bool forceAudioDecode, bool forceVideoDecode);
 
 		HRESULT InitFFmpegContext(bool forceAudioDecode, bool forceVideoDecode);
-		//HRESULT CreateAudioStreamDescriptor(bool forceAudioDecode);
-		//HRESULT CreateVideoStreamDescriptor(bool forceVideoDecode);
+		HRESULT CreateAudioStreamDescriptor(bool forceAudioDecode);
+		HRESULT CreateVideoStreamDescriptor(bool forceVideoDecode);
 		HRESULT ConvertCodecName(const char* codecName, String^ %outputCodecName);
 		//HRESULT ParseOptions(PropertySet^ ffmpegOptions);
 		//void OnStarting(MediaStreamSource ^sender, MediaStreamSourceStartingEventArgs ^args);

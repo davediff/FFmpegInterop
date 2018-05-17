@@ -32,6 +32,12 @@
     <ClInclude Include="TestNativeClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RawSampleProvider.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RawVideoSampleProvider.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FFmpegInterop.CLR.cpp">
@@ -56,6 +62,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TestNativeClass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RawSampleProvider.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RawVideoSampleProvider.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

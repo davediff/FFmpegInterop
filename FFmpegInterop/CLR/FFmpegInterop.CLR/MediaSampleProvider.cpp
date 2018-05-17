@@ -21,6 +21,9 @@
 #include "FFmpegInteropMSS.h"
 #include "FFmpegReader.h"
 
+#include <libavutil/imgutils.h>
+
+
 using namespace FFmpegInterop;
 
 MediaSampleProvider::MediaSampleProvider(
@@ -40,6 +43,7 @@ HRESULT MediaSampleProvider::AllocateResources()
 {
 	DebugMessage(L"AllocateResources\n");
 	m_startOffset = -1;
+	m_packetQueue = new std::vector<AVPacket>;
 	return S_OK;
 }
 
@@ -68,31 +72,35 @@ void MediaSampleProvider::SetCurrentStreamIndex(int streamIndex)
 }
 
 // TODO: return sample the other way
-MyMediaStreamSample^ MediaSampleProvider::GetNextSample()
+HRESULT MediaSampleProvider::GetNextSample()
 {
 	DebugMessage(L"GetNextSample\n");
 
 	HRESULT hr = S_OK;
 
-	MyMediaStreamSample^ sample;
-	MemoryStream mem;
-	BinaryWriter dataWriter(%mem);
+	//MyMediaStreamSample^ sample;
+	FileStream^ fs = gcnew FileStream("c:\\users\\daviddi\\downloads\\videos\\BigBuckBunny_2000yuv420p-7.yuv", FileMode::Create);
+	BinaryWriter^ dataWriter = gcnew BinaryWriter(fs);
 
 	LONGLONG pts = 0;
 	LONGLONG dur = 0;
 
-	hr = GetNextPacket(%dataWriter, pts, dur);
-
-	if (hr == S_OK)
+	while (hr == S_OK)
 	{
-		dataWriter.Flush();
-		//auto buf = mem.GetBuffer();
+		hr = GetNextPacket(dataWriter, pts, dur);
 
-		sample = MyMediaStreamSample::CreateFromStream(%mem, pts, dur);
-		//sample->Duration = { dur };
+		if (hr == S_OK)
+		{
+			dataWriter->Flush();
+			//auto buf = mem.GetBuffer();
+
+			//sample->Duration = { dur };
+		}
 	}
 
-	return sample;
+	fs->Close();
+
+	return hr;
 }
 
 HRESULT MediaSampleProvider::WriteAVPacketToStream(BinaryWriter^ dataWriter, AVPacket* avPacket)
@@ -105,6 +113,7 @@ HRESULT MediaSampleProvider::WriteAVPacketToStream(BinaryWriter^ dataWriter, AVP
 	System::Runtime::InteropServices::Marshal::Copy(IntPtr((void*)avPacket->data), copy, 0, avPacket->size);
 	//auto aBuffer = ref new Platform::Array<uint8_t>(avPacket->data, avPacket->size);
 	dataWriter->Write(copy);
+
 	return S_OK;
 }
 

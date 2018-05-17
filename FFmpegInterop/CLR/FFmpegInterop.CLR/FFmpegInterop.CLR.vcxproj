@@ -151,6 +151,8 @@
     <ClInclude Include="FFmpegReader.h" />
     <ClInclude Include="MediaSampleProvider.h" />
     <ClInclude Include="MyMediaStreamSample.h" />
+    <ClInclude Include="RawSampleProvider.h" />
+    <ClInclude Include="RawVideoSampleProvider.h" />
     <ClInclude Include="Stdafx.h" />
     <ClInclude Include="TestNativeClass.h" />
   </ItemGroup>
@@ -161,6 +163,8 @@
     <ClCompile Include="FFmpegReader.cpp" />
     <ClCompile Include="MediaSampleProvider.cpp" />
     <ClCompile Include="MyMediaStreamSample.cpp" />
+    <ClCompile Include="RawSampleProvider.cpp" />
+    <ClCompile Include="RawVideoSampleProvider.cpp" />
     <ClCompile Include="Stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

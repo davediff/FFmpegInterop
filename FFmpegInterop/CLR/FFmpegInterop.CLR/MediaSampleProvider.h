@@ -46,7 +46,7 @@ namespace FFmpegInterop
 		MediaSampleProvider();
 		virtual ~MediaSampleProvider();
 		//virtual MediaStreamSample^ GetNextSample();
-		virtual MyMediaStreamSample^ GetNextSample();
+		virtual HRESULT GetNextSample();
 		virtual void Flush();
 		virtual void SetCurrentStreamIndex(int streamIndex);
 

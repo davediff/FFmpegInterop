@@ -145,7 +145,6 @@ HRESULT UncompressedVideoSampleProvider::WriteAVPacketToStream(DataWriter^ dataW
 	{
 		return E_FAIL;
 	}
-
 	auto YBuffer = ref new Platform::Array<uint8_t>(m_rgVideoBufferData[0], m_rgVideoBufferLineSize[0] * m_pAvCodecCtx->height);
 	auto UVBuffer = ref new Platform::Array<uint8_t>(m_rgVideoBufferData[1], m_rgVideoBufferLineSize[1] * m_pAvCodecCtx->height / 2);
 	dataWriter->WriteBytes(YBuffer);

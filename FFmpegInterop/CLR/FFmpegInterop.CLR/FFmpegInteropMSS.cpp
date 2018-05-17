@@ -28,6 +28,7 @@
 //#include "H264SampleProvider.h"
 //#include "UncompressedAudioSampleProvider.h"
 //#include "UncompressedVideoSampleProvider.h"
+#include "RawVideoSampleProvider.h"
 //#include "shcore.h"
 
 extern "C"
@@ -254,7 +255,7 @@ HRESULT FFmpegInteropMSS::CreateMediaStreamSource(IStream *stream, bool forceAud
 	//	// Convert asynchronous IRandomAccessStream to synchronous IStream. This API requires shcore.h and shcore.lib
 	//	hr = CreateStreamOverRandomAccessStream(reinterpret_cast<IUnknown*>(stream), IID_PPV_ARGS(&fileStreamData));
 	//}
-
+	/*
 	fileStreamData = stream;
 
 	if (SUCCEEDED(hr))
@@ -297,12 +298,12 @@ HRESULT FFmpegInteropMSS::CreateMediaStreamSource(IStream *stream, bool forceAud
 	{
 		avFormatCtx->pb = avIOCtx;
 		avFormatCtx->flags |= AVFMT_FLAG_CUSTOM_IO;
-
+		*/
 		// Open media file using custom IO setup above instead of using file name. Opening a file using file name will invoke fopen C API call that only have
 		// access within the app installation directory and appdata folder. Custom IO allows access to file selected using FilePicker dialog.
 		pin_ptr<AVFormatContext*> avFormatCtxPtr = &avFormatCtx;
 		pin_ptr<AVDictionary*> avDictPtr = &avDict;
-		if (avformat_open_input(avFormatCtxPtr, "", NULL, avDictPtr) < 0)
+		if (avformat_open_input(avFormatCtxPtr, "c:\\users\\daviddi\\downloads\\videos\\BigBuckBunny_2000h264.mp4", NULL, avDictPtr) < 0)
 		{
 			hr = E_FAIL; // Error opening file
 		}
@@ -314,7 +315,7 @@ HRESULT FFmpegInteropMSS::CreateMediaStreamSource(IStream *stream, bool forceAud
 			av_dict_free(avDictPtr);
 			avDict = nullptr;
 		}
-	}
+	//}
 
 	if (SUCCEEDED(hr))
 	{
@@ -470,15 +471,15 @@ HRESULT FFmpegInteropMSS::InitFFmpegContext(bool forceAudioDecode, bool forceVid
 					{
 						// Detect audio format and create audio stream descriptor accordingly
 						// TODO: fix stream descriptor
-						//hr = CreateAudioStreamDescriptor(forceAudioDecode);
-						//if (SUCCEEDED(hr))
-						//{
+						hr = CreateAudioStreamDescriptor(forceAudioDecode);
+						if (SUCCEEDED(hr))
+						{
 							hr = audioSampleProvider->AllocateResources();
 							if (SUCCEEDED(hr))
 							{
 								m_pReader->SetAudioStream(audioStreamIndex, audioSampleProvider);
 							}
-						//}
+						}
 
 						if (SUCCEEDED(hr))
 						{
@@ -553,15 +554,15 @@ HRESULT FFmpegInteropMSS::InitFFmpegContext(bool forceAudioDecode, bool forceVid
 					{
 						// Detect video format and create video stream descriptor accordingly
 						// TODO: fix video stream descriptor
-						//hr = CreateVideoStreamDescriptor(forceVideoDecode);
-						//if (SUCCEEDED(hr))
-						//{
+						hr = CreateVideoStreamDescriptor(forceVideoDecode);
+						if (SUCCEEDED(hr))
+						{
 							hr = videoSampleProvider->AllocateResources();
 							if (SUCCEEDED(hr))
 							{
 								m_pReader->SetVideoStream(videoStreamIndex, videoSampleProvider);
 							}
-						//}
+						}
 
 						if (SUCCEEDED(hr))
 						{
@@ -700,92 +701,100 @@ HRESULT FFmpegInteropMSS::ConvertCodecName(const char* codecName, String^ %outpu
 }
 
 // TODO: fix
-//HRESULT FFmpegInteropMSS::CreateAudioStreamDescriptor(bool forceAudioDecode)
-//{
-//	if (avAudioCodecCtx->codec_id == AV_CODEC_ID_AAC && !forceAudioDecode)
-//	{
-//		if (avAudioCodecCtx->extradata_size == 0)
-//		{
-//			audioStreamDescriptor = ref new AudioStreamDescriptor(AudioEncodingProperties::CreateAacAdts(avAudioCodecCtx->sample_rate, avAudioCodecCtx->channels, (unsigned int)avAudioCodecCtx->bit_rate));
-//		}
-//		else
-//		{
-//			audioStreamDescriptor = ref new AudioStreamDescriptor(AudioEncodingProperties::CreateAac(avAudioCodecCtx->sample_rate, avAudioCodecCtx->channels, (unsigned int)avAudioCodecCtx->bit_rate));
-//		}
-//		audioSampleProvider = ref new MediaSampleProvider(m_pReader, avFormatCtx, avAudioCodecCtx);
-//	}
-//	else if (avAudioCodecCtx->codec_id == AV_CODEC_ID_MP3 && !forceAudioDecode)
-//	{
-//		audioStreamDescriptor = ref new AudioStreamDescriptor(AudioEncodingProperties::CreateMp3(avAudioCodecCtx->sample_rate, avAudioCodecCtx->channels, (unsigned int)avAudioCodecCtx->bit_rate));
-//		audioSampleProvider = ref new MediaSampleProvider(m_pReader, avFormatCtx, avAudioCodecCtx);
-//	}
-//	else
-//	{
-//		// We always convert to 16-bit audio so set the size here
-//		audioStreamDescriptor = ref new AudioStreamDescriptor(AudioEncodingProperties::CreatePcm(avAudioCodecCtx->sample_rate, avAudioCodecCtx->channels, 16));
-//		audioSampleProvider = ref new UncompressedAudioSampleProvider(m_pReader, avFormatCtx, avAudioCodecCtx);
-//	}
-//
-//	return (audioStreamDescriptor != nullptr && audioSampleProvider != nullptr) ? S_OK : E_OUTOFMEMORY;
-//}
+HRESULT FFmpegInteropMSS::CreateAudioStreamDescriptor(bool forceAudioDecode)
+{
+	if (avAudioCodecCtx->codec_id == AV_CODEC_ID_AAC && !forceAudioDecode)
+	{
+		/*
+		if (avAudioCodecCtx->extradata_size == 0)
+		{
+			audioStreamDescriptor = ref new AudioStreamDescriptor(AudioEncodingProperties::CreateAacAdts(avAudioCodecCtx->sample_rate, avAudioCodecCtx->channels, (unsigned int)avAudioCodecCtx->bit_rate));
+		}
+		else
+		{
+			audioStreamDescriptor = ref new AudioStreamDescriptor(AudioEncodingProperties::CreateAac(avAudioCodecCtx->sample_rate, avAudioCodecCtx->channels, (unsigned int)avAudioCodecCtx->bit_rate));
+		}
+		*/
+		audioSampleProvider = gcnew MediaSampleProvider(m_pReader, avFormatCtx, avAudioCodecCtx);
+	}
+	else if (avAudioCodecCtx->codec_id == AV_CODEC_ID_MP3 && !forceAudioDecode)
+	{
+		//audioStreamDescriptor = ref new AudioStreamDescriptor(AudioEncodingProperties::CreateMp3(avAudioCodecCtx->sample_rate, avAudioCodecCtx->channels, (unsigned int)avAudioCodecCtx->bit_rate));
+		audioSampleProvider = gcnew MediaSampleProvider(m_pReader, avFormatCtx, avAudioCodecCtx);
+	}
+	else
+	{
+		// We always convert to 16-bit audio so set the size here
+		//audioStreamDescriptor = ref new AudioStreamDescriptor(AudioEncodingProperties::CreatePcm(avAudioCodecCtx->sample_rate, avAudioCodecCtx->channels, 16));
+		// audioSampleProvider = new UncompressedAudioSampleProvider(m_pReader, avFormatCtx, avAudioCodecCtx);
+	}
+	return (/*audioStreamDescriptor != nullptr && */ audioSampleProvider != nullptr) ? S_OK : E_OUTOFMEMORY;
+}
 
 //TODO: fix
-//HRESULT FFmpegInteropMSS::CreateVideoStreamDescriptor(bool forceVideoDecode)
-//{
-//	VideoEncodingProperties^ videoProperties;
-//
-//	if (avVideoCodecCtx->codec_id == AV_CODEC_ID_H264 && !forceVideoDecode)
-//	{
-//		videoProperties = VideoEncodingProperties::CreateH264();
-//		videoProperties->ProfileId = avVideoCodecCtx->profile;
-//		videoProperties->Height = avVideoCodecCtx->height;
-//		videoProperties->Width = avVideoCodecCtx->width;
-//
-//		// Check for H264 bitstream flavor. H.264 AVC extradata starts with 1 while non AVC one starts with 0
-//		if (avVideoCodecCtx->extradata != nullptr && avVideoCodecCtx->extradata_size > 0 && avVideoCodecCtx->extradata[0] == 1)
-//		{
-//			videoSampleProvider = ref new H264AVCSampleProvider(m_pReader, avFormatCtx, avVideoCodecCtx);
-//		}
-//		else
-//		{
-//			videoSampleProvider = ref new H264SampleProvider(m_pReader, avFormatCtx, avVideoCodecCtx);
-//		}
-//	}
-//	else
-//	{
-//		videoProperties = VideoEncodingProperties::CreateUncompressed(MediaEncodingSubtypes::Nv12, avVideoCodecCtx->width, avVideoCodecCtx->height);
-//		videoSampleProvider = ref new UncompressedVideoSampleProvider(m_pReader, avFormatCtx, avVideoCodecCtx);
-//
-//		if (avVideoCodecCtx->sample_aspect_ratio.num > 0 && avVideoCodecCtx->sample_aspect_ratio.den != 0)
-//		{
-//			videoProperties->PixelAspectRatio->Numerator = avVideoCodecCtx->sample_aspect_ratio.num;
-//			videoProperties->PixelAspectRatio->Denominator = avVideoCodecCtx->sample_aspect_ratio.den;
-//		}
-//
-//		videoProperties->Properties->Insert(MF_MT_INTERLACE_MODE, (uint32)_MFVideoInterlaceMode::MFVideoInterlace_MixedInterlaceOrProgressive);
-//	}
-//	if (rotateVideo)
-//	{
-//		Platform::Guid MF_MT_VIDEO_ROTATION(0xC380465D, 0x2271, 0x428C, 0x9B, 0x83, 0xEC, 0xEA, 0x3B, 0x4A, 0x85, 0xC1);
-//		videoProperties->Properties->Insert(MF_MT_VIDEO_ROTATION, (uint32)rotationAngle);
-//	}
-//	// Detect the correct framerate
-//	if (avVideoCodecCtx->framerate.num != 0 || avVideoCodecCtx->framerate.den != 1)
-//	{
-//		videoProperties->FrameRate->Numerator = avVideoCodecCtx->framerate.num;
-//		videoProperties->FrameRate->Denominator = avVideoCodecCtx->framerate.den;
-//	}
-//	else if (avFormatCtx->streams[videoStreamIndex]->avg_frame_rate.num != 0 || avFormatCtx->streams[videoStreamIndex]->avg_frame_rate.den != 0)
-//	{
-//		videoProperties->FrameRate->Numerator = avFormatCtx->streams[videoStreamIndex]->avg_frame_rate.num;
-//		videoProperties->FrameRate->Denominator = avFormatCtx->streams[videoStreamIndex]->avg_frame_rate.den;
-//	}
-//
-//	videoProperties->Bitrate = (unsigned int)avVideoCodecCtx->bit_rate;
-//	videoStreamDescriptor = ref new VideoStreamDescriptor(videoProperties);
-//
-//	return (videoStreamDescriptor != nullptr && videoSampleProvider != nullptr) ? S_OK : E_OUTOFMEMORY;
-//}
+
+HRESULT FFmpegInteropMSS::CreateVideoStreamDescriptor(bool forceVideoDecode)
+{
+	videoSampleProvider = gcnew RawVideoSampleProvider(m_pReader, avFormatCtx, avVideoCodecCtx);
+	return(videoSampleProvider != nullptr) ? S_OK : E_OUTOFMEMORY;
+
+	//VideoEncodingProperties^ videoProperties;
+	/*
+	if (avVideoCodecCtx->codec_id == AV_CODEC_ID_H264 && !forceVideoDecode)
+	{
+		
+		videoProperties = VideoEncodingProperties::CreateH264();
+		videoProperties->ProfileId = avVideoCodecCtx->profile;
+		videoProperties->Height = avVideoCodecCtx->height;
+		videoProperties->Width = avVideoCodecCtx->width;
+		
+
+		// Check for H264 bitstream flavor. H.264 AVC extradata starts with 1 while non AVC one starts with 0
+		if (avVideoCodecCtx->extradata != nullptr && avVideoCodecCtx->extradata_size > 0 && avVideoCodecCtx->extradata[0] == 1)
+		{
+			videoSampleProvider = gcnew H264AVCSampleProvider(m_pReader, avFormatCtx, avVideoCodecCtx);
+		}
+		else
+		{
+			videoSampleProvider = ref new H264SampleProvider(m_pReader, avFormatCtx, avVideoCodecCtx);
+		}
+	}
+	else
+	{
+		videoProperties = VideoEncodingProperties::CreateUncompressed(MediaEncodingSubtypes::Nv12, avVideoCodecCtx->width, avVideoCodecCtx->height);
+		videoSampleProvider = gcnew UncompressedVideoSampleProvider(m_pReader, avFormatCtx, avVideoCodecCtx);
+
+		if (avVideoCodecCtx->sample_aspect_ratio.num > 0 && avVideoCodecCtx->sample_aspect_ratio.den != 0)
+		{
+			videoProperties->PixelAspectRatio->Numerator = avVideoCodecCtx->sample_aspect_ratio.num;
+			videoProperties->PixelAspectRatio->Denominator = avVideoCodecCtx->sample_aspect_ratio.den;
+		}
+
+		videoProperties->Properties->Insert(MF_MT_INTERLACE_MODE, (uint32)_MFVideoInterlaceMode::MFVideoInterlace_MixedInterlaceOrProgressive);
+	}
+	if (rotateVideo)
+	{
+		//Platform::Guid MF_MT_VIDEO_ROTATION(0xC380465D, 0x2271, 0x428C, 0x9B, 0x83, 0xEC, 0xEA, 0x3B, 0x4A, 0x85, 0xC1);
+		videoProperties->Properties->Insert(MF_MT_VIDEO_ROTATION, (uint32)rotationAngle);
+	}
+	// Detect the correct framerate
+	if (avVideoCodecCtx->framerate.num != 0 || avVideoCodecCtx->framerate.den != 1)
+	{
+		videoProperties->FrameRate->Numerator = avVideoCodecCtx->framerate.num;
+		videoProperties->FrameRate->Denominator = avVideoCodecCtx->framerate.den;
+	}
+	else if (avFormatCtx->streams[videoStreamIndex]->avg_frame_rate.num != 0 || avFormatCtx->streams[videoStreamIndex]->avg_frame_rate.den != 0)
+	{
+		videoProperties->FrameRate->Numerator = avFormatCtx->streams[videoStreamIndex]->avg_frame_rate.num;
+		videoProperties->FrameRate->Denominator = avFormatCtx->streams[videoStreamIndex]->avg_frame_rate.den;
+	}
+
+	videoProperties->Bitrate = (unsigned int)avVideoCodecCtx->bit_rate;
+	videoStreamDescriptor = ref new VideoStreamDescriptor(videoProperties);
+
+	return (videoStreamDescriptor != nullptr && videoSampleProvider != nullptr) ? S_OK : E_OUTOFMEMORY;
+	*/
+}
 
 
 // TODO:fix
@@ -873,7 +882,7 @@ void FFmpegInteropMSS::Starting(System::TimeSpan startPosition)
 
 
 //void FFmpegInteropMSS::OnSampleRequested(Windows::Media::Core::MediaStreamSource ^sender, MediaStreamSourceSampleRequestedEventArgs ^args)
-MyMediaStreamSample^ FFmpegInteropMSS::SampleRequested(bool audioStreamRequested)
+void FFmpegInteropMSS::SampleRequested(bool audioStreamRequested)
 {
 	DebugMessage(L"OnSampleRequested\n");
 	//mutexGuard.lock();
@@ -883,16 +892,12 @@ MyMediaStreamSample^ FFmpegInteropMSS::SampleRequested(bool audioStreamRequested
 		//if (args->Request->StreamDescriptor == audioStreamDescriptor && audioSampleProvider != nullptr)
 		if (audioStreamRequested && audioSampleProvider != nullptr)
 		{
-			return audioSampleProvider->GetNextSample();
+			audioSampleProvider->GetNextSample();
 		}
 		//else if (args->Request->StreamDescriptor == videoStreamDescriptor && videoSampleProvider != nullptr)
 		else if (!audioStreamRequested && videoSampleProvider != nullptr)
 		{
-			return videoSampleProvider->GetNextSample();
-		}
-		else
-		{
-			return nullptr;
+			videoSampleProvider->GetNextSample();
 		}
 	//}
 	//mutexGuard.unlock();

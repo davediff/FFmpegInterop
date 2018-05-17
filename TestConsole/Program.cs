@@ -16,16 +16,16 @@ namespace TestConsole
     {
         private static void Main(string[] args)
         {
-            using (FileStream stream = new FileStream(@"c:\users\daviddi\videos\big_buck_bunny_480p_h264.mov", FileMode.Open))
+            using (FileStream stream = new FileStream(@"c:\users\daviddi\downloads\videos\BigBuckBunny_2000h264.mp4", FileMode.Open))
             {
                 System.Runtime.InteropServices.ComTypes.IStream comStream = stream.ToComStream();
 
                 FFmpegInteropMSS mss = FFmpegInteropMSS.CreateFFmpegInteropMSSFromStream(comStream, false, false);
 
-                mss.Starting(TimeSpan.FromSeconds(2));
-                MyMediaStreamSample sample = mss.SampleRequested(false);
+                //mss.Starting(TimeSpan.FromSeconds(2));
+                mss.SampleRequested(false);
 
-                sample.Dispose();
+                //sample.Dispose();
             }
         }
     }
